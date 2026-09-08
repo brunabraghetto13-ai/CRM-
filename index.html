@@ -865,7 +865,48 @@
 
   document.getElementById('p-inclusao').value = todayISO();
   loadAll();
-})();
+})();// === INTEGRAÇÃO COM GOOGLE SHEETS ===
+// Substitua o link entre aspas pelo link CSV público da sua planilha
+var SPREADSHEET_CSV_URL = 'COLE_AQUI_O_LINK_DO_SEU_CSV';
+
+async function carregarEstoqueDaPlanilha() {
+  if (!SPREADSHEET_CSV_URL || SPREADSHEET_CSV_URL.includes('COLE_AQUI')) return;
+  
+  try {
+    var response = await fetch(SPREADSHEET_CSV_URL);
+    var csvText = await response.text();
+    var linhas = csvText.split('\n');
+    
+    // Processa cada linha do CSV (ignorando o cabeçalho)
+    for (var i = 1; i < linhas.length; i++) {
+      var col = linhas[i].split(',');
+      if (col.length >= 4) {
+        var codigo = col[0].trim();
+        var descricao = col[1].trim();
+        var valor = parseFloat(col[2].replace('R$', '').replace(',', '.')) || 0;
+        var tamanho = col[3].trim();
+        
+        if (codigo) {
+          var idx = pecas.findIndex(function(p){ return p.codigo === codigo; });
+          var item = { id: uid('peca'), codigo: codigo, nome: descricao, valor: valor, tamanho: tamanho, status: 'estoque', inclusao: todayISO() };
+          
+          if (idx > -1) {
+            pecas[idx] = Object.assign(pecas[idx], item);
+          } else {
+            pecas.push(item);
+          }
+        }
+      }
+    }
+    await savePecas();
+    renderAll();
+  } catch(e) {
+    console.error('Erro ao carregar planilha:', e);
+  }
+}
+
+// Executa a leitura ao abrir o CRM
+carregarEstoqueDaPlanilha();
 </script>
 </body>
 </html>
