@@ -239,7 +239,14 @@
 
     <div class="search-bar">
       <input type="text" id="search-cliente" placeholder="Buscar por nome ou telefone...">
-    </div>
+    </div> <div class="search-bar">
+  <input 
+    type="text" 
+    id="buscaCondicional" 
+    placeholder="Buscar cliente ou peça em condicional..." 
+    onkeyup="filtrarCondicionaisCliente()"
+  >
+</div>
     <div id="list-clientes"><div class="loading">Carregando...</div></div>
   </div>
 
@@ -906,7 +913,20 @@ async function carregarEstoqueDaPlanilha() {
 }
 
 // Executa a leitura ao abrir o CRM
-carregarEstoqueDaPlanilha();
+carregarEstoqueDaPlanilha(); 
+function filtrarCondicionaisCliente() {
+  var termo = document.getElementById('buscaCondicional').value.toLowerCase();
+  var cartoes = document.querySelectorAll('#lista-clientes .card-cliente, #sec-clientes .item-condicional');
+  
+  cartoes.forEach(function(cartao) {
+    var texto = cartao.innerText.toLowerCase();
+    if (texto.includes(termo)) {
+      cartao.style.display = '';
+    } else {
+      cartao.style.display = 'none';
+    }
+  });
+}
 </script>
 </body>
 </html>
